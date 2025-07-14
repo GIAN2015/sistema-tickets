@@ -17,13 +17,17 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('tickets')
 export class TicketsController {
-  constructor(private readonly ticketsService: TicketsService) {}
-
+  constructor(private readonly ticketsService: TicketsService) { }
+  
   @Get('mis-tickets')
   @Roles('user')
-  getMyTickets(@Request() req) {
-    return this.ticketsService.findAllByRole(req.user);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async getMyTickets(@Request() request: any) {
+    console.log('Usuario autenticado (mis-tickets):', request.user); // 👈 Añade esto
+    return this.ticketsService.findAllByRole(request.user);
   }
+
+
 
   @Post()
   @Roles('admin')
