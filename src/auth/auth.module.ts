@@ -6,9 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
+    ConfigModule,
     JwtModule.register({
       secret: 'secreto123', // Cámbialo por una clave segura
       signOptions: { expiresIn: '1d' },

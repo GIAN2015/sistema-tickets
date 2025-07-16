@@ -10,7 +10,10 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepo: Repository<User>,
-  ) {}
+  ) { }
+  findAll() {
+    return this.usersRepo.find(); // devuelve todos los usuarios
+  }
 
   async createUser(dto: { username: string; password: string; role: "user" | "admin" | "ti" }) {
     const hashed = await bcrypt.hash(dto.password, 10);

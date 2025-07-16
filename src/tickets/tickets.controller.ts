@@ -18,25 +18,33 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 @Controller('tickets')
 export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) { }
-  
+
   @Get('mis-tickets')
   @Roles('user')
   @UseGuards(JwtAuthGuard, RolesGuard)
   async getMyTickets(@Request() request: any) {
-    console.log('Usuario autenticado (mis-tickets):', request.user); // 👈 Añade esto
+    console.log('Usuario autenticado (mis-tickets):', request.user);
     return this.ticketsService.findAllByRole(request.user);
   }
 
+  @Get('mis-tickets/completados')
+  @Roles('user')
+  getCompleted(@Request() req) {
+    return this.ticketsService.findCompletedByUser(req.user.userId);
+  }
 
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   create(@Body() dto: any, @Request() req: any) {
     return this.ticketsService.create(dto, req.user);
   }
 
+
   @Get()
-  @Roles('admin', 'user', 'ti')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'ti')
   findAll(@Request() req) {
     return this.ticketsService.findAllByRole(req.user);
   }
@@ -51,5 +59,11 @@ export class TicketsController {
   @Roles('ti')
   complete(@Param('id') id: number) {
     return this.ticketsService.markAsCompleted(id);
+  }
+
+  @Patch(':id/devolver')
+  @Roles('ti')
+  devolver(@Param('id') id: number) {
+    return this.ticketsService.devolverAlUsuario(id);
   }
 }

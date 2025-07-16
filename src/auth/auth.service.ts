@@ -25,17 +25,31 @@ export class AuthService {
   }
 
   async login(dto: { username: string; password: string }) {
-    const user = await this.usersRepo.findOne({ where: { username: dto.username } });
-    if (!user) throw new Error('Usuario no encontrado');
+  const user = await this.usersRepo.findOne({ where: { username: dto.username } });
+  if (!user) throw new Error('Usuario no encontrado');
 
-    const isMatch = await bcrypt.compare(dto.password, user.password);
-    if (!isMatch) throw new Error('Contraseña incorrecta');
+  const isMatch = await bcrypt.compare(dto.password, user.password);
+  if (!isMatch) throw new Error('Contraseña incorrecta');
 
-    const payload = { sub: user.id, username: user.username, role: user.role };
-    const token = await this.jwtService.signAsync(payload);
-
-    return {   access_token: this.jwtService.sign(payload), };
+  if (!user.role) {
+    throw new Error(`El usuario ${user.username} no tiene rol asignado`);
   }
+
+  const payload = {
+    sub: user.id,
+    username: user.username,
+    role: user.role,
+  };
+
+  const token = await this.jwtService.signAsync(payload);
+
+  console.log('Token payload que se firmará:', payload); // 👈 Añádelo para verificar
+
+  return {
+    access_token: token,
+  };
+}
+
 
   async validateUser(id: number) {
     return this.usersRepo.findOne({ where: { id } });
